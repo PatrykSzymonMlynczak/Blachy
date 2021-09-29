@@ -1,0 +1,51 @@
+html{
+
+}
+
+div {
+    position: relative;
+}
+
+.hyperspan {
+    position:absolute;
+    width:100%;
+    height:100%;
+    left:0;
+    top:0;
+}
+
+#mainPanel {
+  background-color: black;
+}
+
+#bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  opacity: 0.5;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.col{
+    margin: 30px;
+    height: 50px;
+    background-color : blue;
+}
+
+#container{
+  margin: auto;
+  width: 80%;
+  border: 3px solid green;
+  padding: 10px;
+  height: 620px;
+}
+
+#mainPanel{
+    margin-top: 66px;
+    height: 150px;
+}
+
+.list {
+    margin: auto;
+}

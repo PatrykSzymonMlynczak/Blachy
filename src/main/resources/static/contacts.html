@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script type='text/javascript' src="knockout-3.5.1.js"></script>
+
+<!--
+    <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
+-->
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div data-bind="visible:InEditMode, css:Css">
+            <div data-bind="visible:InEditMode, css:Css, with:Profile">
+                <form class="form-horizontal" id="form-location-contacts-details">
+                    <div class="form-group">
+                        <label for="Dlugosc" class="col-md-2 control-label">Dlugosc</label>
+                        <div class="col-md-2 mr10">
+                            <select name="TitleList" class="form-control" data-bind="options:$parent.TitleList,
+                                                                optionsText: 'Title',
+                                                                    optionsValue: 'Title', value: Title"></select>
+                        </div>
+                        <div class="col-md-3 mr10">
+                            <input type="text" name="Dlugosc" id="Dlugosc" data-bind="value: Dlugosc" class="form-control" placeholder="Długość" />
+                        </div>
+                        <div class="col-md-1 mr10">
+                            <input type="text" name="Ilosc" data-bind="value: Ilosc" class="form-control" placeholder="Ilosc" />
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="SzerokoscXwysokoscXgrubosc" id="SzerokoscXwysokoscXgrubosc" data-bind="value: SzerokoscXwysokoscXgrubosc" class="form-control" placeholder="Szerokość X wysokość X grubość" />
+                        </div>
+                    </div>
+                    <fieldset>
+                        <legend>Profile Details</legend>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="MaterialType" class="col-md-4 control-label">Materiał</label>
+                                <div class="col-md-8">
+                                    <select name="MaterialType" class="form-control" data-bind="options: $parent.MaterialTypeList,
+                                optionsText:'Description',
+                                value: MaterialType"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="form-group">
+                        <button class="btn btn-success" data-bind="click:$parent.SaveProfile">Zapisz</button>
+                        <button class="btn btn-info" data-bind="click:$parent.ToggleEdit">Wróć</button>
+                    </div>
+                </form>
+                <div></div>
+            </div>
+        </div>
+        <div id="contacts-table" data-bind="visible:!InEditMode(), css:Css">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="companyFilter" class="col-md-2">Filter:</label>
+                        <input type="text" class="form-control col-md-6" id="companyFilter" name="companyFilter" data-bind="value: companyFilter, valueUpdate: 'afterkeydown'" placeholder="Wpisz 'Materiał' lub wymiar: 'szerokośćXwysokośćXgrubość'" autofocus />
+                    </div>
+                </div>
+                <div class="col-md-6 text-right">
+                    <div class="form-group">
+                        <button class="btn btn-primary" data-bind="click: AddProfile">Dodaj nowy profil</button>
+                    </div>
+                </div>
+            </div>
+            <p>Click row to edit the record.</p>
+            <table class="table">
+                <thead>
+                <tr>
+<!--
+                    <th>Materiał</th>
+-->
+                    <th>Rodzaj Materiału</th>
+                    <th>Długość</th>
+                    <th>Szerokość X wysokość X grubość</th>
+                    <th>Ilość</th>
+                </tr>
+                </thead>
+                <tbody data-bind="foreach: filteredProfiles">
+                <tr data-bind="click:$parent.SelectProfile">
+<!--
+                    <td data-bind="text:MaterialType().id"></td>
+-->
+                    <td data-bind="text:RodzajMaterialu"></td>
+                    <td data-bind="text:Dlugosc"></td>
+                    <td data-bind="text:SzerokoscXwysokoscXgrubosc"></td>
+                    <td data-bind="text:Ilosc"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script type="" src="c.js"></script>
+</body>
+</html>
