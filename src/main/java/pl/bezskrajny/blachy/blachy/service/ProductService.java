@@ -53,24 +53,9 @@ public class ProductService {
         return dtoList;
     }
 
-    public ProductEntity parseAndUpdateProduct(String rodzajMaterialu, int dlugosc, String szerokoscXwysokoscXgrubosc, int ilosc) {
-        Parameters parameters = stringParser.parseStringValue(szerokoscXwysokoscXgrubosc);
+    public void parseAndUpdateProduct(Long id, Long ilosc) {
+        productRepo.updateProduct(id, ilosc);
 
-        productRepo.updateProduct(
-                rodzajMaterialu,
-                dlugosc,
-                parameters.getSzerokosc(),
-                parameters.getWysokosc(),
-                parameters.getGrubosc(),
-                ilosc);
-
-        return new ProductEntity(
-                rodzajMaterialu,
-                dlugosc,
-                parameters.getSzerokosc(),
-                parameters.getWysokosc(),
-                parameters.getGrubosc(),
-                ilosc);
     }
 
     public float productCheckout(String rodzajMaterialu, int dlugosc, String szerokoscXwysokoscXgrubosc) {
@@ -82,5 +67,9 @@ public class ProductService {
                 parameters.getSzerokosc(),
                 parameters.getWysokosc(),
                 parameters.getGrubosc());
+    }
+
+    public void deleteById(Long id) {
+        productRepo.deleteById(id);
     }
 }

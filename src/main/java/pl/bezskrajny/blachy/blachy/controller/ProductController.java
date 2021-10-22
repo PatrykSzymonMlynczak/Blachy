@@ -37,22 +37,27 @@ public class ProductController {
 
     @ApiOperation(value = "Dodaj nowy produkt")
     @PostMapping("/{rodzajMaterialu}/{dlugosc}/{szerokoscXwysokoscXgrubosc}/{ilosc}")
-    public ProductEntity addProductString(@PathVariable String rodzajMaterialu,
+    public ProductDto addProductString(@PathVariable String rodzajMaterialu,
                                           @PathVariable int dlugosc,
                                           @PathVariable String szerokoscXwysokoscXgrubosc,
                                           //updating above name demands change StringParser constructor
                                           @PathVariable int ilosc){
-        return productService.parseAndSaveProduct(rodzajMaterialu,dlugosc,szerokoscXwysokoscXgrubosc,ilosc);
+
+        ProductEntity productEntity =  productService.parseAndSaveProduct(rodzajMaterialu,dlugosc,szerokoscXwysokoscXgrubosc,ilosc);
+
+        return new ProductDto(
+                productEntity.getId(),
+                productEntity.getRodzajMaterialu(),
+                productEntity.getDlugosc(),
+                ""+productEntity.getSzerokosc()+'x'+productEntity.getWysokosc()+'x'+productEntity.getGrubosc(),
+                productEntity.getIlosc()
+        );
     }
 
     @ApiOperation(value = "Aktualizuj ilosc")
-    @PutMapping("/{rodzajMaterialu}/{dlugosc}/{szerokoscXwysokoscXgrubosc}/{ilosc}")
-    public ProductEntity updateProduct(@PathVariable String rodzajMaterialu,
-                                       @PathVariable int dlugosc,
-                                       @PathVariable String szerokoscXwysokoscXgrubosc,
-                                       //updating above name demands change StringParser constructor
-                                       @PathVariable int ilosc){
-        return productService.parseAndUpdateProduct(rodzajMaterialu,dlugosc,szerokoscXwysokoscXgrubosc,ilosc);
+    @PutMapping("/{id}/{ilosc}")
+    public void updateProduct(@PathVariable Long id, @PathVariable Long ilosc){
+        productService.parseAndUpdateProduct(id ,ilosc);
     }
 
     @ApiOperation(value = "Sprawdz czy istnieje")
@@ -62,5 +67,10 @@ public class ProductController {
                                                @PathVariable String szerokoscXwysokoscXgrubosc){
                                                //updating above name demands change StringParser constructor
         return productService.productCheckout(rodzajMaterialu,dlugosc,szerokoscXwysokoscXgrubosc);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteById(@PathVariable Long id){
+        productService.deleteById(id);
     }
 }

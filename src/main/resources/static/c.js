@@ -1,24 +1,20 @@
 
-var Profile = function (data, MaterialTypeList) {
+var Profile = function (data) {
     var self = this;
     self.Id = ko.observable(data.id);
-    //self.MaterialType = ko.observable(new MaterialType(data.MaterialType));
-    self.MaterialType = ko.observable(ko.utils.arrayFirst(MaterialTypeList, function (item) {
-        //console.log("itemId: " + item.Id + " - typeId: " + data.MaterialType.Id);
-        return item.Id === data.id;
-
-    }));
     self.RodzajMaterialu = ko.observable(data.rodzajMaterialu);
     self.Dlugosc = ko.observable(data.dlugosc);
     self.Ilosc = ko.observable(data.ilosc);
     self.SzerokoscXwysokoscXgrubosc = ko.observable(data.szerokoscXwysokoscXgrubosc);
 };
 
-//todo -> refactor to another type
+//Needed for Filter -> sth with Id
 var Title = function(data){
   	var self = this;
     self.Id = ko.observable(data.Id);
+/*
     self.Title = ko.observable(data.Title);
+*/
 };
 
 var ProfilesViewModel = function (data) {
@@ -28,7 +24,9 @@ var ProfilesViewModel = function (data) {
     self.InActive = ko.observable(data.InActive);
     self.Profile = ko.observable();
 
+/*
     self.MaterialTypeList = ko.observableArray([]); // load from service
+*/
     self.ProfileList = ko.observableArray([]); // load from service
     self.companyFilter = ko.observable("");
 
@@ -36,25 +34,14 @@ var ProfilesViewModel = function (data) {
      * Begin Service Calls
      ************************************************************************************/
 
-    var materialTypeList = [{
-        Id: "1",
-        Description: "Profile"
-    }, {
-        Id: "2",
-        Description: "Dealer"
-    }];
-
-    self.MaterialTypeList(materialTypeList);
-
-
-
       self.LoadProfilesByLocationId = function () {
+
             $.ajax({
                 type: 'GET',
                 url: '/product',
             }).done(response => {
                     var profiles = ko.utils.arrayMap(response, function (item) {
-                        return new Profile(item, self.MaterialTypeList());
+                        return new Profile(item);
                     });
 
                     self.ProfileList.push.apply(self.ProfileList, profiles);
@@ -64,10 +51,40 @@ var ProfilesViewModel = function (data) {
             })
         }
 
-    self.SaveProfile = function () {
+      self.PutProfile = function (data) {
+
+            self.Profile(self.BlankProfile);
+
+            ko.toJSON(data.Id)
+
+            $.ajax({
+                    type: 'PUT',
+                    url: `/product/${parseInt(ko.toJS(data.Id),10)}/${parseInt(ko.toJS(data.Ilosc),10)}`
+            }).done(response => {
+                window.location.reload();
+            }).fail(error => {
+                    alert("(wiel)Błąd : wpisz ilość !")
+            })
+      }
+
+      self.DeleteProfile = function(data){
+              ko.toJSON(data.Id)
+
+           $.ajax({
+                  type: 'DELETE',
+                  url: `/product/${parseInt(ko.toJS(data.Id),10)}`
+           }).done(response => {
+              window.location.reload();
+           }).fail(error => {
+                  alert("Error : " + error.message)
+           })
+      }
+
+      self.SaveProfile = function () {
+
         // Massage the posted data to the approved shape for the web service.
         var contactPostData = new ProfilePostViewModel(self.Profile(), self.LocationId());
-console.log("postedData: " + ko.toJSON(contactPostData));
+        console.log("postedData: " + ko.toJSON(contactPostData));
         // Get it ready to be posted.
         var data = ko.toJS(contactPostData);
 
@@ -75,18 +92,21 @@ console.log("postedData: " + ko.toJSON(contactPostData));
         // Ajax POST goes here...
          $.ajax({
                 type: 'POST',
-/*
-                url: '/product/asd/${data.dlugosc}/${data.szerokoscXwysokoscXgrubosc}/${data.ilosc}/'
-*/
-                url: '/product/asd/100/11x11x11/11'
-            }).done(response => {
+                url: `/product/${self.BlankProfile.RodzajMaterialu}/${self.BlankProfile.Dlugosc}/${self.BlankProfile.SzerokoscXwysokoscXgrubosc}/${self.BlankProfile.Ilosc}`
+         }).done(response => {
 
-            }).fail(error => {
-                alert("Error : " + error.responseJSON.debugMessage)
-            })
+                document.getElementById("isSaved").innerText = "Zapisano";
+                setTimeout(function(){
+                    document.getElementById("isSaved").innerText = "";
+                }, 2000);
 
+                self.UpdateProfiles(response);
 
-        // this is the response todo
+         }).fail(error => {
+                alert("Błąd : niepoprawnie sformatowane dane")
+         })
+
+/*        // this is the response todo
         var response = {};
         if (data.Id === "00000000-0000-0000-0000-000000000000") {
             response.Id = createGuid();
@@ -103,8 +123,10 @@ console.log("postedData: " + ko.toJSON(contactPostData));
         // Now add merge the Profile back into the collection.
         self.UpdateProfiles(profile);
 
+*//*
         self.ToggleEdit();
-        console.log("list: " + ko.toJSON(self.ProfileList()));
+*//*
+        console.log("list: " + ko.toJSON(self.ProfileList()));*/
     };
 
     self.LoadProfilesByLocationId();
@@ -132,15 +154,11 @@ console.log("postedData: " + ko.toJSON(contactPostData));
             return self.ProfileList();
         } else {
             return ko.utils.arrayFilter(self.ProfileList(), function (item) {
-                //if (item.Company().toLowerCase().indexOf(filter) === 0) { return item; }
-/*                if (item.MaterialType().Description.toLowerCase().indexOf(filter) === 0) {
-                    return item;
-                }*/
                 if (item.SzerokoscXwysokoscXgrubosc().indexOf(filter) === 0) {
                     return item;
                 }
             });
-        }
+        }``
     });
 
     /************************************************************************************
@@ -154,15 +172,17 @@ console.log("postedData: " + ko.toJSON(contactPostData));
         self.companyFilter("");
 
         // Load the selected profile
-        self.Profile(data, ko.toJS(self.MaterialTypeList));
+        self.Profile(data/*, ko.toJS(self.MaterialTypeList)*/);
 		console.log("selected profile: " + ko.toJSON(self.Profile()));
 
         // Toggle the visibility of the views.
-        self.ToggleEdit();
+
+
+        self.TogglePut();
     };
 
     self.AddProfile = function () {
-        self.Profile(self.BlankProfile, materialTypeList);
+        self.Profile(self.BlankProfile/*, materialTypeList*/);
         self.ToggleEdit();
     };
     /************************************************************************************
@@ -184,24 +204,20 @@ console.log("postedData: " + ko.toJSON(contactPostData));
         });
         if (!recordFound) {
             console.log("trying to push onto the list...");
-            self.ProfileList.push(new Profile(ko.toJS(profile), ko.toJS(self.MaterialTypeList)));
+            self.ProfileList.push(new Profile(ko.toJS(profile)/*, ko.toJS(self.MaterialTypeList)*/));
             //self.ProfileList.push(profile);
         }
-        //self.ProfileList.valueHasMutated();
+        self.ProfileList.valueHasMutated();
     }
 
-    self.BlankProfile = {
-        "Id": "00000000-0000-0000-0000-000000000000",
-            "LocationId": self.LocationId(),
-            "MaterialType": {
-            	"Id": "1",
-                "Description": "Profile"
-        	},
-            "MaterialTypeId": "1",
-            "FirstName": "",
-            "ilosc": "",
-            "szerokoscXwysokoscXgrubosc": ""
-    };
+        self.BlankProfile = {
+            "Id": "0",
+                "LocationId": self.LocationId(),
+                "Dlugosc": "",
+                "Ilosc": "",
+                "SzerokoscXwysokoscXgrubosc": "",
+                "RodzajMaterialu":""
+        };
 
     /************************************************************************************
      * End Helpers
@@ -212,6 +228,8 @@ console.log("postedData: " + ko.toJSON(contactPostData));
     });
 
     ko.utils.extend(self, new ToggleEditModel());
+    ko.utils.extend(self, new TogglePutModel());
+
 };
 
 function createGuid() {
@@ -222,10 +240,22 @@ function createGuid() {
     });
 }
 
+var TogglePutModel = function (){
+    var self = this;
+
+    self.InPutMode = ko.observable(false);
+
+    self.CanEdit = ko.observable(true);
+    self.TogglePut = function () {
+        self.InPutMode(!self.InPutMode());
+    }
+}
+
 var ToggleEditModel = function () {
     var self = this;
 
     self.InEditMode = ko.observable(false);
+
     self.CanEdit = ko.observable(true);
     self.ToggleEdit = function () {
         self.InEditMode(!self.InEditMode());
@@ -238,8 +268,8 @@ var ProfilePostViewModel = function (data, locationId) {
     self.LocationId = locationId;
     self.RodzajMaterialu = data.rodzajMaterialu;
     self.Dlugosc = data.dlugosc;
-    self.Ilosc = data.ilosc; //MiddleInitial
-    self.SzerokoscXwysokoscXgrubosc = data.szerokoscXwysokoscXgrubosc;//LastName
+    self.Ilosc = data.ilosc;
+    self.SzerokoscXwysokoscXgrubosc = data.szerokoscXwysokoscXgrubosc;
 }
 
 ko.applyBindings(new ProfilesViewModel({
